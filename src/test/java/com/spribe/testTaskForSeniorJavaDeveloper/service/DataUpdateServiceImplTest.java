@@ -18,9 +18,6 @@ class DataUpdateServiceImplTest {
     @Mock
     private CurrencyRateService currencyRateService;
 
-    @Mock
-    private CurrencyService currencyService;
-
     @InjectMocks
     private DataUpdateServiceImpl dataUpdateService;
 

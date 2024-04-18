@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spribe.testTaskForSeniorJavaDeveloper.dao.CurrencyRepository;
 import com.spribe.testTaskForSeniorJavaDeveloper.dto.CurrencyDTO;
+import com.spribe.testTaskForSeniorJavaDeveloper.exception.CurrencyRateTaskException;
 import com.spribe.testTaskForSeniorJavaDeveloper.model.Currency;
-import com.spribe.testTaskForSeniorJavaDeveloper.model.enam.CCommand;
+import com.spribe.testTaskForSeniorJavaDeveloper.model.enums.CCommand;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -24,6 +26,7 @@ public class CurrencyServiceImpl implements CurrencyService {
         this.currencyRepository = currencyRepository;
     }
 
+    @Transactional
     @Override
     public void getAndSaveNewCurrencies() throws JsonProcessingException {
         String currencyStringResponse = getCurrencyStringResponse();
@@ -57,21 +60,23 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     }
 
+    @Transactional
     @Override
     public List<CurrencyDTO> getCurrencyDTOs() {
         return currencyRepository.findAll().stream()
                 .map(Currency::toDTO).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
-    public void addCurrencyToUpdating(String currencyCode) throws Exception {
+    public void addCurrencyToUpdating(String currencyCode) throws CurrencyRateTaskException {
 
         Currency currencyByCode = currencyRepository.getCurrencyByCode(currencyCode);
         if (Objects.nonNull(currencyByCode)) {
             currencyByCode.setUsed(true);
             currencyRepository.save(currencyByCode);
         } else {
-            throw new Exception("Currency is not exist");
+            throw new CurrencyRateTaskException("Currency is not exist");
         }
 
     }

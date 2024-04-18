@@ -2,7 +2,7 @@ package com.spribe.testTaskForSeniorJavaDeveloper.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.spribe.testTaskForSeniorJavaDeveloper.dto.CurrencyDTO;
-import com.spribe.testTaskForSeniorJavaDeveloper.model.Currency;
+import com.spribe.testTaskForSeniorJavaDeveloper.exception.CurrencyRateTaskException;
 
 
 import java.util.List;
@@ -16,7 +16,7 @@ public interface CurrencyService {
 
     List<CurrencyDTO> getCurrencyDTOs();
 
-    void addCurrencyToUpdating(String currencyCode) throws Exception;
+    void addCurrencyToUpdating(String currencyCode) throws CurrencyRateTaskException;
 
     String getCurrenciesForUpdating();
 }

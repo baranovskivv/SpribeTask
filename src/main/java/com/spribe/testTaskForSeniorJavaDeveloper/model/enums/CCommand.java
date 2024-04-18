@@ -1,4 +1,4 @@
-package com.spribe.testTaskForSeniorJavaDeveloper.model.enam;
+package com.spribe.testTaskForSeniorJavaDeveloper.model.enums;
 
 public enum CCommand {
     GET_CURRENCIES("https://openexchangerates.org/api/currencies.json"),

@@ -1,41 +1,46 @@
 package com.spribe.testTaskForSeniorJavaDeveloper.service;
 
-import com.spribe.testTaskForSeniorJavaDeveloper.dto.CurrencyRateResponse;
-import com.spribe.testTaskForSeniorJavaDeveloper.model.CurrencyRate;
-import com.spribe.testTaskForSeniorJavaDeveloper.model.enam.CCommand;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.spribe.testTaskForSeniorJavaDeveloper.exception.CurrencyRateTaskException;
+import com.spribe.testTaskForSeniorJavaDeveloper.model.enums.CCommand;
+import com.spribe.testTaskForSeniorJavaDeveloper.util.EnvironmentUtil;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Log4j2
 public class DataUpdateServiceImpl implements DataUpdateService {
 
     private final CurrencyRateService currencyRateService;
     private final CurrencyService currencyService;
+    private final EnvironmentUtil environmentUtil;
 
     @Autowired
-    public DataUpdateServiceImpl(CurrencyRateService currencyRateService, CurrencyService currencyService) {
+    public DataUpdateServiceImpl(CurrencyRateService currencyRateService, CurrencyService currencyService, EnvironmentUtil environmentUtil) {
         this.currencyRateService = currencyRateService;
         this.currencyService = currencyService;
+        this.environmentUtil = environmentUtil;
     }
 
-
+    @Transactional
     public void updateData() {
         try {
+           currencyService.getAndSaveNewCurrencies();
            currencyRateService.getAndSaveCurrencyRates(
-                   CCommand.GET_CURRENCY_RATES.getUrl().concat("d008d27d32b945dca5582a4beb35d4cb")
-           .concat("&".concat(currencyService.getCurrenciesForUpdating()))
+                   CCommand.GET_CURRENCY_RATES.getUrl().concat(environmentUtil.getAppId())
+//           .concat("&".concat(currencyService.getCurrenciesForUpdating()))
            );
 
-        } catch (Exception e) {
-            System.out.println("Currency rates updating is failed");
-            e.printStackTrace();
+        } catch (JsonProcessingException | CurrencyRateTaskException e) {
+            log.error(e.getMessage());
         }
-        System.out.println("Currency rates are updated");
+        log.info("Currency rates are updated");
     }
 
     public void runScheduler() {

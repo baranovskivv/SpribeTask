@@ -1,5 +1,6 @@
 package com.spribe.testTaskForSeniorJavaDeveloper.service;
 
+import com.spribe.testTaskForSeniorJavaDeveloper.configuration.CurrencyUpdateConfig;
 import com.spribe.testTaskForSeniorJavaDeveloper.dao.CurrencyRatePackRepository;
 import com.spribe.testTaskForSeniorJavaDeveloper.dao.CurrencyRateRepository;
 import com.spribe.testTaskForSeniorJavaDeveloper.dao.CurrencyRepository;
@@ -7,11 +8,13 @@ import com.spribe.testTaskForSeniorJavaDeveloper.dao.OuterSystemRepository;
 import com.spribe.testTaskForSeniorJavaDeveloper.dto.CurrencyDTO;
 import com.spribe.testTaskForSeniorJavaDeveloper.dto.CurrencyRateDTO;
 import com.spribe.testTaskForSeniorJavaDeveloper.dto.CurrencyRateResponse;
+import com.spribe.testTaskForSeniorJavaDeveloper.exception.CurrencyRateTaskException;
 import com.spribe.testTaskForSeniorJavaDeveloper.model.Currency;
 import com.spribe.testTaskForSeniorJavaDeveloper.model.CurrencyRate;
 import com.spribe.testTaskForSeniorJavaDeveloper.model.CurrencyRatePack;
 import com.spribe.testTaskForSeniorJavaDeveloper.model.OuterSystem;
-import com.spribe.testTaskForSeniorJavaDeveloper.model.enam.COuterSystem;
+import com.spribe.testTaskForSeniorJavaDeveloper.model.enums.COuterSystem;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -21,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Log4j2
 public class CurrencyRateServiceImpl implements CurrencyRateService {
 
     private final CurrencyRepository currencyRepository;
@@ -41,7 +45,7 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
 
     @Override
     @Transactional
-    public void getAndSaveCurrencyRates(String url) throws Exception {
+    public void getAndSaveCurrencyRates(String url) throws CurrencyRateTaskException {
         CurrencyRateResponse currencyRateResponse = getCurrencyRateResponse(url);
         List<CurrencyRate> allCurrencyRatesFromCurrencyRateResponse = getAllCurrencyRatesFromCurrencyRateResponse(currencyRateResponse);
         processAndSaveCurrencyRates(allCurrencyRatesFromCurrencyRateResponse, currencyRateResponse);
@@ -101,14 +105,15 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
     }
 
     @Override
-    public CurrencyRateResponse getCurrencyRateResponse(String url) throws Exception {
+    public CurrencyRateResponse getCurrencyRateResponse(String url) throws CurrencyRateTaskException {
         final RestTemplate restTemplate = new RestTemplate();
         CurrencyRateResponse response = restTemplate.getForObject(url, CurrencyRateResponse.class);
         if (Objects.isNull(response))
-            throw new Exception("Sorry! Server is not available!");
+            throw new CurrencyRateTaskException("Sorry! Server is not available!");
         return response;
     }
 
+    @Transactional
     @Override
     public List<CurrencyRateDTO> getLastCurrencyRateDTOs() {
         final CurrencyRatePack currencyRatePack = currencyRatePackRepository.findFirstByOrderByStartDate();

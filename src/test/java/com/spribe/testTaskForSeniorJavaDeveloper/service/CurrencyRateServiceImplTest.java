@@ -6,7 +6,7 @@ import com.spribe.testTaskForSeniorJavaDeveloper.dao.CurrencyRepository;
 import com.spribe.testTaskForSeniorJavaDeveloper.dao.OuterSystemRepository;
 import com.spribe.testTaskForSeniorJavaDeveloper.dto.CurrencyRateResponse;
 import com.spribe.testTaskForSeniorJavaDeveloper.model.Currency;
-import com.spribe.testTaskForSeniorJavaDeveloper.model.enam.CCommand;
+import com.spribe.testTaskForSeniorJavaDeveloper.model.enums.CCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

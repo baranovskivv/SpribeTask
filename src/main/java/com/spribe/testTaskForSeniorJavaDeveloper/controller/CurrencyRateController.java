@@ -1,32 +1,39 @@
 package com.spribe.testTaskForSeniorJavaDeveloper.controller;
 
 import com.spribe.testTaskForSeniorJavaDeveloper.dto.CurrencyRateDTO;
-import com.spribe.testTaskForSeniorJavaDeveloper.model.enam.CCommand;
+import com.spribe.testTaskForSeniorJavaDeveloper.exception.CurrencyRateTaskException;
+import com.spribe.testTaskForSeniorJavaDeveloper.model.enums.CCommand;
 import com.spribe.testTaskForSeniorJavaDeveloper.service.CurrencyRateService;
-import lombok.RequiredArgsConstructor;
+import com.spribe.testTaskForSeniorJavaDeveloper.util.EnvironmentUtil;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RequiredArgsConstructor
+
 @RestController("currencyRates")
+@Log4j2
 public class CurrencyRateController {
 
-    private CurrencyRateService сurrencyRateService;
+    private final CurrencyRateService сurrencyRateService;
+    private final EnvironmentUtil environmentUtil;
 
     @Autowired
-    public CurrencyRateController(CurrencyRateService currencyRateService) {
+    public CurrencyRateController(CurrencyRateService currencyRateService, EnvironmentUtil environmentUtil) {
         this.сurrencyRateService = currencyRateService;
+        this.environmentUtil = environmentUtil;
     }
 
-    @GetMapping(value = "updateCurRates", produces = "application/json")
+    @PostMapping(value = "updateCurRates", produces = "application/json")
     public ResponseEntity<String> updateCurrencyRates() {
         try {
-            сurrencyRateService.getAndSaveCurrencyRates(CCommand.GET_CURRENCY_RATES.getUrl().concat("d008d27d32b945dca5582a4beb35d4cb"));
-        } catch (Exception e) {
+            сurrencyRateService.getAndSaveCurrencyRates(CCommand.GET_CURRENCY_RATES.getUrl().concat(environmentUtil.getAppId()));
+        } catch (CurrencyRateTaskException e) {
+            log.error(e.getMessage());
             return ResponseEntity.internalServerError()
                     .body(e.getMessage());
         }
@@ -41,5 +48,4 @@ public class CurrencyRateController {
 
         return ResponseEntity.ok(lastCurrencyRateDTOs);
     }
-
 }
